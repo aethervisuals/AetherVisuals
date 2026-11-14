@@ -1,21 +1,21 @@
-name: Unpack Template
-on: [workflow_dispatch]
+name: Build AetherVisuals
+on:
+  workflow_dispatch:
 jobs:
-  unpack:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
       - run: |
-          unzip -o aethervisuals-template-1.21.4.zip
-          rm -f aethervisuals-template-1.21.4.zip
-          rm -f .github/workflows/build.yml
-          
-      - run: |
-          git config user.name "GitHub Action"
-          git config user.email "action@github.com"
-          git add .
-          git commit -m "Unpack template"
-          git push
+          rm -rf src/main/java/com/aether/aethervisuals/ui/aethervisuals
+          chmod +x gradlew
+          ./gradlew build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AetherVisuals-1.21.4
+          path: build/libs/*.jar
           
