@@ -10,6 +10,8 @@ jobs:
       - run: |
           unzip -o aethervisuals-template-1.21.4.zip
           rm -f aethervisuals-template-1.21.4.zip
+          rm -f .github/workflows/build.yml
+          
       - run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
