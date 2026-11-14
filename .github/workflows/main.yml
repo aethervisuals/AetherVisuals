@@ -9,9 +9,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: |
           unzip -o aethervisuals-template-1.21.4.zip
-          mv aethervisuals-template-1.21.4/* .
-          mv aethervisuals-template-1.21.4/.[!.]* . || true
-          rm -rf aethervisuals-template-1.21.4 aethervisuals-template-1.21.4.zip
+          rm -f aethervisuals-template-1.21.4.zip
       - run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
