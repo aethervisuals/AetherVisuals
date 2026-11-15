@@ -7,6 +7,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.BufferRenderer;
+import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
@@ -66,7 +67,7 @@ public class JumpCircleModule extends Module {
 
         for (Circle circle : circles) {
             float progress = (now - circle.startTime) / 1200.0f;
-            if (progress > 1.0f) continue;
+            if (progress >= 1.0f) continue;
 
             float ease = 1.0f - (float) Math.pow(1.0f - progress, 3);
             float outerRadius = 0.25f + ease * 1.45f;
@@ -94,7 +95,11 @@ public class JumpCircleModule extends Module {
             matrices.pop();
         }
 
-        BufferRenderer.drawWithGlobalProgram(buffer.end());
+        BuiltBuffer built = buffer.endNullable();
+        if (built != null) {
+            BufferRenderer.drawWithGlobalProgram(built);
+        }
+
         RenderSystem.enableCull();
         RenderSystem.disableBlend();
     }
