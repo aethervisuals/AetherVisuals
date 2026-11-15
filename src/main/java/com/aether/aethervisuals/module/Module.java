@@ -2,6 +2,7 @@ package com.aether.aethervisuals.module;
 
 import com.aether.aethervisuals.module.settings.Setting;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.util.math.MatrixStack;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +30,7 @@ public abstract class Module {
     public void onDisable() {}
     public void onTick() {}
     public void onRender2D(DrawContext context, float tickDelta) {}
-    public void onRender3D(float tickDelta) {}
+    public void onRender3D(MatrixStack matrices, float tickDelta) {}
 
     public void toggle() {
         setEnabled(!enabled);
