@@ -3,6 +3,9 @@ package com.aether.aethervisuals.ui;
 import com.aether.aethervisuals.AetherVisuals;
 import com.aether.aethervisuals.module.Category;
 import com.aether.aethervisuals.module.Module;
+import com.aether.aethervisuals.module.impl.hud.KeystrokesModule;
+import com.aether.aethervisuals.module.impl.hud.TargetHudModule;
+import com.aether.aethervisuals.module.impl.hud.WatermarkModule;
 import com.aether.aethervisuals.util.animation.Animation;
 import com.aether.aethervisuals.util.animation.Easing;
 import com.aether.aethervisuals.util.render.Render2D;
@@ -16,6 +19,10 @@ public class ClickGuiScreen extends Screen {
 
     private Category selectedCategory = Category.HUD;
     private final Animation openAnim = new Animation(Easing.EASE_OUT_CUBIC, 250);
+
+    private Module draggingModule = null;
+    private float dragOffsetX = 0.0f;
+    private float dragOffsetY = 0.0f;
 
     public ClickGuiScreen() {
         super(Text.literal("AetherVisuals ClickGUI"));
@@ -52,18 +59,18 @@ public class ClickGuiScreen extends Screen {
         context.drawTextWithShadow(this.textRenderer, "AETHER", (int) (panelX + 24), (int) (panelY + 18), Render2D.ACCENT_CYAN);
         context.drawTextWithShadow(this.textRenderer, "VISUALS", (int) (panelX + 22), (int) (panelY + 29), Render2D.ACCENT_PURPLE);
 
-        float catY = panelY + 52;
+        float catY = panelY + 48;
         for (Category category : Category.values()) {
             boolean isSelected = category == selectedCategory;
             if (isSelected) {
-                Render2D.drawRoundedRect(context, panelX + 12, catY, sidebarW - 12, 22, 6.0f, 0x778A2BE2);
-                Render2D.drawRoundedOutline(context, panelX + 12, catY, sidebarW - 12, 22, 6.0f, 1.0f,
+                Render2D.drawRoundedRect(context, panelX + 12, catY, sidebarW - 12, 20, 6.0f, 0x778A2BE2);
+                Render2D.drawRoundedOutline(context, panelX + 12, catY, sidebarW - 12, 20, 6.0f, 1.0f,
                         Render2D.ACCENT_PURPLE, Render2D.ACCENT_CYAN);
             }
             int textColor = isSelected ? 0xFFFFFFFF : 0xFFA0A0B0;
             context.drawTextWithShadow(this.textRenderer, category.getDisplayName(),
-                    (int) (panelX + 22), (int) (catY + 7), textColor);
-            catY += 28;
+                    (int) (panelX + 22), (int) (catY + 6), textColor);
+            catY += 25;
         }
 
         float contentX = panelX + sidebarW + 14;
@@ -102,25 +109,52 @@ public class ClickGuiScreen extends Screen {
             }
         }
 
+        context.drawTextWithShadow(this.textRenderer, "Перетаскивайте HUD элементы мышкой",
+                (int) (panelX + 105), (int) (panelY + panelH - 14), 0xFF707085);
+
         context.getMatrices().pop();
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0) {
+            WatermarkModule wm = AetherVisuals.getInstance().getModuleManager().getModule(WatermarkModule.class);
+            if (wm != null && wm.isEnabled() && isHovered(mouseX, mouseY, wm.x, wm.y, wm.width, wm.height)) {
+                draggingModule = wm;
+                dragOffsetX = (float) mouseX - wm.x;
+                dragOffsetY = (float) mouseY - wm.y;
+                return true;
+            }
+
+            TargetHudModule th = AetherVisuals.getInstance().getModuleManager().getModule(TargetHudModule.class);
+            if (th != null && th.isEnabled() && isHovered(mouseX, mouseY, th.x, th.y, th.width, th.height)) {
+                draggingModule = th;
+                dragOffsetX = (float) mouseX - th.x;
+                dragOffsetY = (float) mouseY - th.y;
+                return true;
+            }
+
+            KeystrokesModule ks = AetherVisuals.getInstance().getModuleManager().getModule(KeystrokesModule.class);
+            if (ks != null && ks.isEnabled() && isHovered(mouseX, mouseY, ks.x, ks.y, ks.width, ks.height)) {
+                draggingModule = ks;
+                dragOffsetX = (float) mouseX - ks.x;
+                dragOffsetY = (float) mouseY - ks.y;
+                return true;
+            }
+
             float panelW = 360.0f;
             float panelH = 230.0f;
             float panelX = (this.width - panelW) / 2.0f;
             float panelY = (this.height - panelH) / 2.0f;
             float sidebarW = 95.0f;
 
-            float catY = panelY + 52;
+            float catY = panelY + 48;
             for (Category category : Category.values()) {
-                if (isHovered(mouseX, mouseY, panelX + 12, catY, sidebarW - 12, 22)) {
+                if (isHovered(mouseX, mouseY, panelX + 12, catY, sidebarW - 12, 20)) {
                     selectedCategory = category;
                     return true;
                 }
-                catY += 28;
+                catY += 25;
             }
 
             float contentX = panelX + sidebarW + 14;
@@ -137,6 +171,35 @@ public class ClickGuiScreen extends Screen {
             }
         }
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+        if (button == 0 && draggingModule != null) {
+            if (draggingModule instanceof WatermarkModule wm) {
+                wm.x = (float) mouseX - dragOffsetX;
+                wm.y = (float) mouseY - dragOffsetY;
+                return true;
+            } else if (draggingModule instanceof TargetHudModule th) {
+                th.x = (float) mouseX - dragOffsetX;
+                th.y = (float) mouseY - dragOffsetY;
+                return true;
+            } else if (draggingModule instanceof KeystrokesModule ks) {
+                ks.x = (float) mouseX - dragOffsetX;
+                ks.y = (float) mouseY - dragOffsetY;
+                return true;
+            }
+        }
+        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (button == 0 && draggingModule != null) {
+            draggingModule = null;
+            return true;
+        }
+        return super.mouseReleased(mouseX, mouseY, button);
     }
 
     private boolean isHovered(double mouseX, double mouseY, float x, float y, float w, float h) {
