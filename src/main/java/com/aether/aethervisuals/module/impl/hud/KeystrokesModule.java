@@ -2,12 +2,14 @@ package com.aether.aethervisuals.module.impl.hud;
 
 import com.aether.aethervisuals.module.Category;
 import com.aether.aethervisuals.module.Module;
+import com.aether.aethervisuals.ui.ClickGuiScreen;
 import com.aether.aethervisuals.util.animation.Animation;
 import com.aether.aethervisuals.util.animation.Easing;
 import com.aether.aethervisuals.util.render.Render2D;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.option.KeyBinding;
 
 import java.util.ArrayList;
@@ -29,6 +31,11 @@ public class KeystrokesModule extends Module {
     private boolean wasLmbPressed = false;
     private boolean wasRmbPressed = false;
 
+    public float x = 10.0f;
+    public float y = -1.0f;
+    public final float width = 78.0f;
+    public final float height = 97.0f;
+
     public KeystrokesModule() {
         super("Keystrokes", "Отображает нажатия клавиш WASD, пробела и CPS", Category.HUD);
         setEnabled(true);
@@ -38,6 +45,10 @@ public class KeystrokesModule extends Module {
     public void onRender2D(DrawContext context, float tickDelta) {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.textRenderer == null) return;
+
+        if (y < 0) {
+            y = client.getWindow().getScaledHeight() - 105.0f;
+        }
 
         long now = System.currentTimeMillis();
         boolean lmb = client.options.attackKey.isPressed();
@@ -51,30 +62,33 @@ public class KeystrokesModule extends Module {
         cleanOldClicks(leftClicks, now);
         cleanOldClicks(rightClicks, now);
 
-        float startX = 10.0f;
-        float startY = client.getWindow().getScaledHeight() - 105.0f;
         float keySize = 24.0f;
         float gap = 3.0f;
 
         drawKey(context, client.options.forwardKey, "W", animW,
-                startX + keySize + gap, startY, keySize, keySize);
+                x + keySize + gap, y, keySize, keySize);
 
-        float row2Y = startY + keySize + gap;
-        drawKey(context, client.options.leftKey, "A", animA, startX, row2Y, keySize, keySize);
-        drawKey(context, client.options.backKey, "S", animS, startX + keySize + gap, row2Y, keySize, keySize);
-        drawKey(context, client.options.rightKey, "D", animD, startX + (keySize + gap) * 2, row2Y, keySize, keySize);
+        float row2Y = y + keySize + gap;
+        drawKey(context, client.options.leftKey, "A", animA, x, row2Y, keySize, keySize);
+        drawKey(context, client.options.backKey, "S", animS, x + keySize + gap, row2Y, keySize, keySize);
+        drawKey(context, client.options.rightKey, "D", animD, x + (keySize + gap) * 2, row2Y, keySize, keySize);
 
         float row3Y = row2Y + keySize + gap;
         float totalWidth = keySize * 3 + gap * 2;
         float mouseKeyW = (totalWidth - gap) / 2.0f;
 
         drawMouseKey(context, lmb, "LMB", leftClicks.size() + " CPS", animLmb,
-                startX, row3Y, mouseKeyW, keySize);
+                x, row3Y, mouseKeyW, keySize);
         drawMouseKey(context, rmb, "RMB", rightClicks.size() + " CPS", animRmb,
-                startX + mouseKeyW + gap, row3Y, mouseKeyW, keySize);
+                x + mouseKeyW + gap, row3Y, mouseKeyW, keySize);
 
         float row4Y = row3Y + keySize + gap;
-        drawKey(context, client.options.jumpKey, "SPACE", animSpace, startX, row4Y, totalWidth, 16.0f);
+        drawKey(context, client.options.jumpKey, "SPACE", animSpace, x, row4Y, totalWidth, 16.0f);
+
+        if (client.currentScreen instanceof ClickGuiScreen || client.currentScreen instanceof ChatScreen) {
+            Render2D.drawRoundedOutline(context, x - 2, y - 2, width + 4, height + 4, 6.0f, 1.0f,
+                    Render2D.ACCENT_PURPLE, Render2D.ACCENT_CYAN);
+        }
     }
 
     private void drawKey(DrawContext context, KeyBinding key, String label, Animation anim,
