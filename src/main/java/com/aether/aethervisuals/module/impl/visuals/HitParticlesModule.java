@@ -7,6 +7,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.BufferRenderer;
+import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
@@ -82,6 +83,7 @@ public class HitParticlesModule extends Module {
 
         for (Spark s : sparks) {
             float progress = (float) (now - s.spawnTime) / 750.0f;
+            if (progress >= 1.0f) continue;
             float alpha = Math.max(0.0f, 1.0f - progress);
 
             matrices.push();
@@ -102,7 +104,11 @@ public class HitParticlesModule extends Module {
             matrices.pop();
         }
 
-        BufferRenderer.drawWithGlobalProgram(buffer.end());
+        BuiltBuffer built = buffer.endNullable();
+        if (built != null) {
+            BufferRenderer.drawWithGlobalProgram(built);
+        }
+
         RenderSystem.enableCull();
         RenderSystem.disableBlend();
     }
@@ -120,3 +126,4 @@ public class HitParticlesModule extends Module {
         }
     }
 }
+
