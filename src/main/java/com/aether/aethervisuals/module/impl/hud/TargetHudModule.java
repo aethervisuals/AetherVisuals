@@ -2,6 +2,7 @@ package com.aether.aethervisuals.module.impl.hud;
 
 import com.aether.aethervisuals.module.Category;
 import com.aether.aethervisuals.module.Module;
+import com.aether.aethervisuals.ui.ClickGuiScreen;
 import com.aether.aethervisuals.util.animation.Animation;
 import com.aether.aethervisuals.util.animation.Easing;
 import com.aether.aethervisuals.util.render.Render2D;
@@ -22,6 +23,11 @@ public class TargetHudModule extends Module {
     private LivingEntity lastTarget;
     private long lastTargetTime;
 
+    public float x = -1.0f;
+    public float y = -1.0f;
+    public final float width = 135.0f;
+    public final float height = 44.0f;
+
     public TargetHudModule() {
         super("TargetHUD", "Показывает карточку с информацией о цели", Category.HUD);
         setEnabled(true);
@@ -32,8 +38,15 @@ public class TargetHudModule extends Module {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.textRenderer == null) return;
 
+        if (x < 0 || y < 0) {
+            x = (client.getWindow().getScaledWidth() - width) / 2.0f;
+            y = client.getWindow().getScaledHeight() / 2.0f + 35.0f;
+        }
+
+        boolean isEditing = client.currentScreen instanceof ChatScreen || client.currentScreen instanceof ClickGuiScreen;
+
         LivingEntity target = null;
-        if (client.currentScreen instanceof ChatScreen) {
+        if (isEditing) {
             target = client.player;
         } else if (client.targetedEntity instanceof LivingEntity living && living.isAlive()) {
             target = living;
@@ -56,11 +69,6 @@ public class TargetHudModule extends Module {
         healthAnimation.animateTo(currentHp / maxHp);
         float animatedHpRatio = MathHelper.clamp(healthAnimation.getFloat(), 0.0f, 1.0f);
 
-        float width = 135.0f;
-        float height = 44.0f;
-        float x = (client.getWindow().getScaledWidth() - width) / 2.0f;
-        float y = client.getWindow().getScaledHeight() / 2.0f + 35.0f;
-
         float scale = 0.85f + 0.15f * anim;
         context.getMatrices().push();
         context.getMatrices().translate(x + width / 2.0f, y + height / 2.0f, 0);
@@ -68,6 +76,11 @@ public class TargetHudModule extends Module {
         context.getMatrices().translate(-(x + width / 2.0f), -(y + height / 2.0f), 0);
 
         Render2D.drawGlassPanel(context, x, y, width, height, 8.0f);
+
+        if (isEditing) {
+            Render2D.drawRoundedOutline(context, x, y, width, height, 8.0f, 1.0f,
+                    Render2D.ACCENT_PURPLE, Render2D.ACCENT_CYAN);
+        }
 
         int headSize = 28;
         int headX = (int) (x + 8);
