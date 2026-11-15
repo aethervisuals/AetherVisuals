@@ -7,6 +7,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.BufferRenderer;
+import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
@@ -77,6 +78,7 @@ public class WorldParticlesModule extends Module {
 
         for (Firefly p : particles) {
             float progress = (float) (now - p.spawnTime) / p.lifeTime;
+            if (progress >= 1.0f) continue;
             float alpha = (float) Math.sin(progress * Math.PI);
 
             matrices.push();
@@ -97,7 +99,11 @@ public class WorldParticlesModule extends Module {
             matrices.pop();
         }
 
-        BufferRenderer.drawWithGlobalProgram(buffer.end());
+        BuiltBuffer built = buffer.endNullable();
+        if (built != null) {
+            BufferRenderer.drawWithGlobalProgram(built);
+        }
+
         RenderSystem.enableCull();
         RenderSystem.disableBlend();
     }
