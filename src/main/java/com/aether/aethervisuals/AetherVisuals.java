@@ -5,6 +5,7 @@ import com.aether.aethervisuals.module.ModuleManager;
 import com.aether.aethervisuals.module.impl.hud.KeystrokesModule;
 import com.aether.aethervisuals.module.impl.hud.TargetHudModule;
 import com.aether.aethervisuals.module.impl.hud.WatermarkModule;
+import com.aether.aethervisuals.module.impl.render.AnimationModule;
 import com.aether.aethervisuals.module.impl.render.FullBrightModule;
 import com.aether.aethervisuals.module.impl.visuals.HitParticlesModule;
 import com.aether.aethervisuals.module.impl.visuals.JumpCircleModule;
@@ -45,6 +46,7 @@ public class AetherVisuals implements ClientModInitializer {
         this.moduleManager.register(new KeystrokesModule());
 
         this.moduleManager.register(new FullBrightModule());
+        this.moduleManager.register(new AnimationModule());
         this.moduleManager.register(new ClickPearlModule());
 
         this.moduleManager.register(new JumpCircleModule());
