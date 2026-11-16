@@ -196,5 +196,132 @@ public class ClickGuiScreen extends Screen {
                 dragOffsetX = (float) mouseX - wm.x;
                 dragOffsetY = (float) mouseY - wm.y;
                 return true;
+            }
+                       TargetHudModule th = AetherVisuals.getInstance().getModuleManager().getModule(TargetHudModule.class);
+            if (th != null && th.isEnabled() && isHovered(mouseX, mouseY, th.x, th.y, th.width, th.height)) {
+                draggingModule = th;
+                dragOffsetX = (float) mouseX - th.x;
+                dragOffsetY = (float) mouseY - th.y;
+                return true;
+            }
+            KeystrokesModule ks = AetherVisuals.getInstance().getModuleManager().getModule(KeystrokesModule.class);
+            if (ks != null && ks.isEnabled() && isHovered(mouseX, mouseY, ks.x, ks.y, ks.width, ks.height)) {
+                draggingModule = ks;
+                dragOffsetX = (float) mouseX - ks.x;
+                dragOffsetY = (float) mouseY - ks.y;
+                return true;
+            }
+        }
+
+        float panelW = 390.0f;
+        float panelH = 250.0f;
+        float panelX = (this.width - panelW) / 2.0f;
+        float panelY = (this.height - panelH) / 2.0f;
+        float sidebarW = 100.0f;
+        float contentX = panelX + sidebarW + 14;
+        float contentW = panelW - sidebarW - 22;
+
+        if (button == 0) {
+            searchFocused = isHovered(mouseX, mouseY, contentX, panelY + 10, contentW, 20);
+            float catY = panelY + 42;
+            for (Category category : Category.values()) {
+                if (isHovered(mouseX, mouseY, panelX + 12, catY, sidebarW - 12, 19)) {
+                    selectedCategory = category;
+                    searchQuery = "";
+                    return true;
+                }
+                catY += 22;
+            }
+        }
+
+        float modY = panelY + 36;
+        for (Module module : getFilteredModules()) {
+            if (modY + 34 > panelY + panelH - 12) break;
+            if (isHovered(mouseX, mouseY, contentX, modY, contentW, 34)) {
+                if (button == 0) {
+                    module.toggle();
+                    return true;
+                } else if (button == 1 && !module.getSettings().isEmpty()) {
+                    if (expandedModules.contains(module)) expandedModules.remove(module);
+                    else expandedModules.add(module);
+                    return true;
+                }
+            }
+            modY += 38;
+            if (expandedModules.contains(module) && !module.getSettings().isEmpty()) {
+                for (Setting<?> setting : module.getSettings()) {
+                    if (!setting.isVisible() || modY + 20 > panelY + panelH - 10) continue;
+                    if (button == 0 && isHovered(mouseX, mouseY, contentX + 6, modY, contentW - 12, 20)) {
+                        if (setting instanceof BooleanSetting boolSet) boolSet.toggle();
+                        else if (setting instanceof ModeSetting modeSet) modeSet.cycle();
+                        else if (setting instanceof NumberSetting numSet) {
+                            double next = numSet.getValue() + numSet.getStep();
+                            if (next > numSet.getMax()) next = numSet.getMin();
+                            numSet.setValue(next);
+                        }
+                        return true;
+                    }
+                    modY += 23;
+                }
+            }
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
     }
-            
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+        if (button == 0 && draggingModule != null) {
+            if (draggingModule instanceof WatermarkModule wm) {
+                wm.x = (float) mouseX - dragOffsetX;
+                wm.y = (float) mouseY - dragOffsetY;
+                return true;
+            } else if (draggingModule instanceof TargetHudModule th) {
+                th.x = (float) mouseX - dragOffsetX;
+                th.y = (float) mouseY - dragOffsetY;
+                return true;
+            } else if (draggingModule instanceof KeystrokesModule ks) {
+                ks.x = (float) mouseX - dragOffsetX;
+                ks.y = (float) mouseY - dragOffsetY;
+                return true;
+            }
+        }
+        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+    }
+    @Override
+public boolean mouseReleased(double mouseX, double mouseY, int button) {
+if (button == 0 && draggingModule != null) {
+draggingModule = null;
+return true;
+}
+return super.mouseReleased(mouseX, mouseY, button);
+}
+@Override
+public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+if (searchFocused) {
+if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+searchFocused = false;
+return true;
+}
+if (keyCode == GLFW.GLFW_KEY_BACKSPACE && !searchQuery.isEmpty()) {
+searchQuery = searchQuery.substring(0, searchQuery.length() - 1);
+return true;
+}
+}
+return super.keyPressed(keyCode, scanCode, modifiers);
+}
+@Override
+public boolean charTyped(char chr, int modifiers) {
+if (searchFocused && searchQuery.length() < 20) {
+searchQuery += chr;
+return true;
+}
+return super.charTyped(chr, modifiers);
+}
+private boolean isHovered(double mouseX, double mouseY, float x, float y, float w, float h) {
+return mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h;
+}
+@Override
+public boolean shouldPause() {
+return false;    }
+        }
+        
