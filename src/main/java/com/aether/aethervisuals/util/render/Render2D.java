@@ -5,6 +5,7 @@ import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.BufferRenderer;
+import net.minecraft.client.render.BuiltBuffer;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
@@ -15,11 +16,17 @@ public class Render2D {
     public static final int ACCENT_PURPLE = 0xFF8A2BE2;
     public static final int ACCENT_CYAN   = 0xFF00F0FF;
     public static final int GLASS_BG      = 0xB80E0E16;
+    public static final int MATTE_BG      = 0xEB0D0E15;
+    public static final int MATTE_CARD    = 0xF0141622;
 
     public static void drawGlassPanel(DrawContext context, float x, float y, float width, float height, float radius) {
-        drawRoundedRect(context, x + 2, y + 3, width, height, radius, 0x55000000);
-        drawRoundedRect(context, x, y, width, height, radius, GLASS_BG);
-        drawRoundedOutline(context, x, y, width, height, radius, 1.0f, ACCENT_PURPLE, ACCENT_CYAN);
+        drawMattePanel(context, x, y, width, height, radius);
+    }
+
+    public static void drawMattePanel(DrawContext context, float x, float y, float width, float height, float radius) {
+        drawRoundedRect(context, x + 2, y + 3, width, height, radius, 0x66000000);
+        drawRoundedRect(context, x, y, width, height, radius, MATTE_BG);
+        drawRoundedOutline(context, x, y, width, height, radius, 1.2f, ACCENT_PURPLE, ACCENT_CYAN);
     }
 
     public static void drawRoundedRect(DrawContext context, float x, float y, float width, float height, float radius, int color) {
@@ -62,7 +69,10 @@ public class Render2D {
         }
         buffer.vertex(matrix, corners[0][0], corners[0][1] - radius, 0).color(r, g, b, a);
 
-        BufferRenderer.drawWithGlobalProgram(buffer.end());
+        BuiltBuffer built = buffer.endNullable();
+        if (built != null) {
+            BufferRenderer.drawWithGlobalProgram(built);
+        }
         RenderSystem.disableBlend();
     }
 
@@ -111,7 +121,10 @@ public class Render2D {
         }
         buffer.vertex(matrix, corners[0][0], corners[0][1] - radius, 0).color(r1, g1, b1, a1);
 
-        BufferRenderer.drawWithGlobalProgram(buffer.end());
+        BuiltBuffer built = buffer.endNullable();
+        if (built != null) {
+            BufferRenderer.drawWithGlobalProgram(built);
+        }
         RenderSystem.lineWidth(1.0f);
         RenderSystem.disableBlend();
     }
