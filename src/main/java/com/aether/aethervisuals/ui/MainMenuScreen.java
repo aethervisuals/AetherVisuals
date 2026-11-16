@@ -1,6 +1,8 @@
 package com.aether.aethervisuals.ui;
 
 import com.aether.aethervisuals.util.animation.Animation;
+import com.aether.aethervisuals.mixin.MinecraftClientAccessor;
+
 import com.aether.aethervisuals.util.animation.Easing;
 import com.aether.aethervisuals.util.render.Render2D;
 import net.minecraft.client.MinecraftClient;
