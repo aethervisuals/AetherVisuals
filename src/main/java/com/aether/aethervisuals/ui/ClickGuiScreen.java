@@ -94,8 +94,8 @@ public class ClickGuiScreen extends Screen {
             int boxX = (int) (panelX + 12);
             int boxY = (int) (panelY + panelH - 68);
             Render2D.drawRoundedRect(context, boxX, boxY, sidebarW - 12, 56, 7.0f, Render2D.MATTE_CARD);
-            InventoryScreen.drawEntity(context, boxX + 22, boxY + 46, 18,
-                    (boxX + 22) - mouseX, (boxY + 20) - mouseY, this.client.player);
+            InventoryScreen.drawEntity(context, boxX + 4, boxY + 4, boxX + 36, boxY + 52, 22,
+                    0.0625f, mouseX, mouseY, this.client.player);
             String nick = this.client.player.getName().getString();
             if (this.textRenderer.getWidth(nick) > 46) {
                 nick = this.textRenderer.trimToWidth(nick, 42) + "..";
@@ -176,8 +176,7 @@ public class ClickGuiScreen extends Screen {
 
         context.getMatrices().pop();
     }
-
-    private List<Module> getFilteredModules() {
+         private List<Module> getFilteredModules() {
         if (!searchQuery.isEmpty()) {
             String q = searchQuery.toLowerCase();
             return AetherVisuals.getInstance().getModuleManager().getModules().stream()
@@ -197,7 +196,7 @@ public class ClickGuiScreen extends Screen {
                 dragOffsetY = (float) mouseY - wm.y;
                 return true;
             }
-                       TargetHudModule th = AetherVisuals.getInstance().getModuleManager().getModule(TargetHudModule.class);
+            TargetHudModule th = AetherVisuals.getInstance().getModuleManager().getModule(TargetHudModule.class);
             if (th != null && th.isEnabled() && isHovered(mouseX, mouseY, th.x, th.y, th.width, th.height)) {
                 draggingModule = th;
                 dragOffsetX = (float) mouseX - th.x;
@@ -223,6 +222,7 @@ public class ClickGuiScreen extends Screen {
 
         if (button == 0) {
             searchFocused = isHovered(mouseX, mouseY, contentX, panelY + 10, contentW, 20);
+
             float catY = panelY + 42;
             for (Category category : Category.values()) {
                 if (isHovered(mouseX, mouseY, panelX + 12, catY, sidebarW - 12, 19)) {
@@ -237,6 +237,7 @@ public class ClickGuiScreen extends Screen {
         float modY = panelY + 36;
         for (Module module : getFilteredModules()) {
             if (modY + 34 > panelY + panelH - 12) break;
+
             if (isHovered(mouseX, mouseY, contentX, modY, contentW, 34)) {
                 if (button == 0) {
                     module.toggle();
@@ -248,6 +249,7 @@ public class ClickGuiScreen extends Screen {
                 }
             }
             modY += 38;
+
             if (expandedModules.contains(module) && !module.getSettings().isEmpty()) {
                 for (Setting<?> setting : module.getSettings()) {
                     if (!setting.isVisible() || modY + 20 > panelY + panelH - 10) continue;
@@ -265,6 +267,7 @@ public class ClickGuiScreen extends Screen {
                 }
             }
         }
+
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
@@ -287,41 +290,46 @@ public class ClickGuiScreen extends Screen {
         }
         return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
     }
+
     @Override
-public boolean mouseReleased(double mouseX, double mouseY, int button) {
-if (button == 0 && draggingModule != null) {
-draggingModule = null;
-return true;
-}
-return super.mouseReleased(mouseX, mouseY, button);
-}
-@Override
-public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-if (searchFocused) {
-if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
-searchFocused = false;
-return true;
-}
-if (keyCode == GLFW.GLFW_KEY_BACKSPACE && !searchQuery.isEmpty()) {
-searchQuery = searchQuery.substring(0, searchQuery.length() - 1);
-return true;
-}
-}
-return super.keyPressed(keyCode, scanCode, modifiers);
-}
-@Override
-public boolean charTyped(char chr, int modifiers) {
-if (searchFocused && searchQuery.length() < 20) {
-searchQuery += chr;
-return true;
-}
-return super.charTyped(chr, modifiers);
-}
-private boolean isHovered(double mouseX, double mouseY, float x, float y, float w, float h) {
-return mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h;
-}
-@Override
-public boolean shouldPause() {
-return false;    }
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (button == 0 && draggingModule != null) {
+            draggingModule = null;
+            return true;
         }
-        
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (searchFocused) {
+            if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+                searchFocused = false;
+                return true;
+            }
+            if (keyCode == GLFW.GLFW_KEY_BACKSPACE && !searchQuery.isEmpty()) {
+                searchQuery = searchQuery.substring(0, searchQuery.length() - 1);
+                return true;
+            }
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean charTyped(char chr, int modifiers) {
+        if (searchFocused && searchQuery.length() < 20) {
+            searchQuery += chr;
+            return true;
+        }
+        return super.charTyped(chr, modifiers);
+    }
+
+    private boolean isHovered(double mouseX, double mouseY, float x, float y, float w, float h) {
+        return mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h;
+    }
+
+    @Override
+    public boolean shouldPause() {
+        return false;
+    }
+}
