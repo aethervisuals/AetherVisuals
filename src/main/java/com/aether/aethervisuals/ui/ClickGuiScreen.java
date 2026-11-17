@@ -3,6 +3,7 @@ package com.aether.aethervisuals.ui;
 import com.aether.aethervisuals.AetherVisuals;
 import com.aether.aethervisuals.module.Category;
 import com.aether.aethervisuals.module.Module;
+import com.aether.aethervisuals.module.impl.hud.CoordsModule;
 import com.aether.aethervisuals.module.impl.hud.KeystrokesModule;
 import com.aether.aethervisuals.module.impl.hud.TargetHudModule;
 import com.aether.aethervisuals.module.impl.hud.WatermarkModule;
@@ -71,7 +72,7 @@ public class ClickGuiScreen extends Screen {
         Render2D.drawMattePanel(context, panelX, panelY, panelW, panelH, 12.0f);
 
         float sidebarW = 100.0f;
-        Render2D.drawRoundedRect(context, panelX + 6, panelY + 6, sidebarW, panelH - 12, 8.0f, 0xFF0A0B12);
+        Render2D.drawRoundedRect(context, panelX + 6, panelY + 6, sidebarW, panelH - 12, 8.0f, 0xFF06070B);
 
         context.drawTextWithShadow(this.textRenderer, "AETHER", (int) (panelX + 26), (int) (panelY + 14), Render2D.ACCENT_CYAN);
         context.drawTextWithShadow(this.textRenderer, "VISUALS 2.0", (int) (panelX + 18), (int) (panelY + 25), Render2D.ACCENT_PURPLE);
@@ -80,7 +81,7 @@ public class ClickGuiScreen extends Screen {
         for (Category category : Category.values()) {
             boolean isSelected = category == selectedCategory && searchQuery.isEmpty();
             if (isSelected) {
-                Render2D.drawRoundedRect(context, panelX + 12, catY, sidebarW - 12, 19, 6.0f, 0x996B21A8);
+                Render2D.drawRoundedRect(context, panelX + 12, catY, sidebarW - 12, 19, 6.0f, 0xFF3B1363);
                 Render2D.drawRoundedOutline(context, panelX + 12, catY, sidebarW - 12, 19, 6.0f, 1.0f,
                         Render2D.ACCENT_PURPLE, Render2D.ACCENT_CYAN);
             }
@@ -94,13 +95,13 @@ public class ClickGuiScreen extends Screen {
             int boxX = (int) (panelX + 12);
             int boxY = (int) (panelY + panelH - 68);
             Render2D.drawRoundedRect(context, boxX, boxY, sidebarW - 12, 56, 7.0f, Render2D.MATTE_CARD);
-            InventoryScreen.drawEntity(context, boxX + 4, boxY + 4, boxX + 36, boxY + 52, 22,
+            InventoryScreen.drawEntity(context, boxX + 2, boxY + 2, boxX + 36, boxY + 46, 19,
                     0.0625f, mouseX, mouseY, this.client.player);
             String nick = this.client.player.getName().getString();
             if (this.textRenderer.getWidth(nick) > 46) {
                 nick = this.textRenderer.trimToWidth(nick, 42) + "..";
             }
-            context.drawTextWithShadow(this.textRenderer, nick, boxX + 40, boxY + 22, Render2D.ACCENT_CYAN);
+            context.drawTextWithShadow(this.textRenderer, nick, boxX + 38, boxY + 22, Render2D.ACCENT_CYAN);
         }
 
         float contentX = panelX + sidebarW + 14;
@@ -108,7 +109,7 @@ public class ClickGuiScreen extends Screen {
         float searchY = panelY + 10;
         Render2D.drawRoundedRect(context, contentX, searchY, contentW, 20, 6.0f, Render2D.MATTE_CARD);
         Render2D.drawRoundedOutline(context, contentX, searchY, contentW, 20, 6.0f, 1.0f,
-                searchFocused ? Render2D.ACCENT_CYAN : 0x558A2BE2, Render2D.ACCENT_CYAN);
+                searchFocused ? Render2D.ACCENT_CYAN : 0x668A2BE2, Render2D.ACCENT_CYAN);
 
         String searchText = searchQuery.isEmpty() && !searchFocused
                 ? "Поиск функции..."
@@ -176,7 +177,7 @@ public class ClickGuiScreen extends Screen {
 
         context.getMatrices().pop();
     }
-         private List<Module> getFilteredModules() {
+        private List<Module> getFilteredModules() {
         if (!searchQuery.isEmpty()) {
             String q = searchQuery.toLowerCase();
             return AetherVisuals.getInstance().getModuleManager().getModules().stream()
@@ -194,6 +195,13 @@ public class ClickGuiScreen extends Screen {
                 draggingModule = wm;
                 dragOffsetX = (float) mouseX - wm.x;
                 dragOffsetY = (float) mouseY - wm.y;
+                return true;
+            }
+            CoordsModule cm = AetherVisuals.getInstance().getModuleManager().getModule(CoordsModule.class);
+            if (cm != null && cm.isEnabled() && isHovered(mouseX, mouseY, cm.x, cm.y, cm.width, cm.height)) {
+                draggingModule = cm;
+                dragOffsetX = (float) mouseX - cm.x;
+                dragOffsetY = (float) mouseY - cm.y;
                 return true;
             }
             TargetHudModule th = AetherVisuals.getInstance().getModuleManager().getModule(TargetHudModule.class);
@@ -277,6 +285,10 @@ public class ClickGuiScreen extends Screen {
             if (draggingModule instanceof WatermarkModule wm) {
                 wm.x = (float) mouseX - dragOffsetX;
                 wm.y = (float) mouseY - dragOffsetY;
+                return true;
+            } else if (draggingModule instanceof CoordsModule cm) {
+                cm.x = (float) mouseX - dragOffsetX;
+                cm.y = (float) mouseY - dragOffsetY;
                 return true;
             } else if (draggingModule instanceof TargetHudModule th) {
                 th.x = (float) mouseX - dragOffsetX;
