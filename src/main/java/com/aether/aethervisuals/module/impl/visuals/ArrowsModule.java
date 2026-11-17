@@ -52,7 +52,7 @@ public class ArrowsModule extends Module {
 
             context.getMatrices().push();
             context.getMatrices().translate(ax, ay, 0);
-            context.getMatrices().rotate(new org.joml.Quaternionf().rotateZ(rad));
+            context.getMatrices().multiply(new org.joml.Quaternionf().rotateZ(rad));
 
             drawTriangleArrow(context, 0, 0, 5.5f);
 
