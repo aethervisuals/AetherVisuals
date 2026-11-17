@@ -8,7 +8,10 @@
 	"client": [
 		"TitleScreenMixin",
 		"HandledScreenMixin",
-		"MinecraftClientAccessor"
+		"MinecraftClientAccessor",
+		"NoRenderMixin",
+		"FireOverlayMixin",
+		"CustomSkyMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
