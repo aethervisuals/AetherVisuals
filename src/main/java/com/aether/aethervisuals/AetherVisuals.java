@@ -1,7 +1,9 @@
 package com.aether.aethervisuals;
 
+import com.aether.aethervisuals.config.ConfigManager;
 import com.aether.aethervisuals.module.Module;
 import com.aether.aethervisuals.module.ModuleManager;
+import com.aether.aethervisuals.module.impl.hud.CoordsModule;
 import com.aether.aethervisuals.module.impl.hud.KeystrokesModule;
 import com.aether.aethervisuals.module.impl.hud.TargetHudModule;
 import com.aether.aethervisuals.module.impl.hud.WatermarkModule;
@@ -15,15 +17,20 @@ import com.aether.aethervisuals.ui.ClickGuiScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 public class AetherVisuals implements ClientModInitializer {
 
@@ -33,6 +40,7 @@ public class AetherVisuals implements ClientModInitializer {
 
     private static AetherVisuals instance;
     private ModuleManager moduleManager;
+    private ConfigManager configManager;
     private KeyBinding clickGuiKey;
 
     @Override
@@ -42,6 +50,7 @@ public class AetherVisuals implements ClientModInitializer {
 
         this.moduleManager = new ModuleManager();
         this.moduleManager.register(new WatermarkModule());
+        this.moduleManager.register(new CoordsModule());
         this.moduleManager.register(new TargetHudModule());
         this.moduleManager.register(new KeystrokesModule());
 
@@ -53,12 +62,23 @@ public class AetherVisuals implements ClientModInitializer {
         this.moduleManager.register(new WorldParticlesModule());
         this.moduleManager.register(new HitParticlesModule());
 
+        this.configManager = new ConfigManager();
+
         this.clickGuiKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.aethervisuals.clickgui",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_RIGHT_SHIFT,
                 "category.aethervisuals"
         ));
+
+        ClientSendMessageEvents.ALLOW_CHAT.register(message -> {
+            String trimmed = message.trim();
+            if (trimmed.toLowerCase().startsWith(".config")) {
+                handleConfigCommand(trimmed);
+                return false;
+            }
+            return true;
+        });
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.player == null) return;
@@ -100,11 +120,49 @@ public class AetherVisuals implements ClientModInitializer {
         LOGGER.info("[AetherVisuals] Успешно загружено {} модулей!", moduleManager.getModules().size());
     }
 
+    private void handleConfigCommand(String cmd) {
+        String[] args = cmd.split("\\s+");
+        if (args.length < 2) {
+            sendChat("§b[AetherVisuals] §fИспользуйте: §7.config save <имя> | load <имя> | list");
+            return;
+        }
+        String sub = args[1].toLowerCase();
+        if (sub.equals("list")) {
+            List<String> list = configManager.getConfigList();
+            if (list.isEmpty()) {
+                sendChat("§b[AetherVisuals] §7Сохранённых конфигов пока нет.");
+            } else {
+                sendChat("§b[AetherVisuals] §fКонфиги (§b" + list.size() + "§f): §a" + String.join(", ", list));
+            }
+        } else if (sub.equals("save") && args.length >= 3) {
+            boolean ok = configManager.saveConfig(args[2]);
+            sendChat(ok ? "§b[AetherVisuals] §aКонфиг '" + args[2] + "' сохранён!"
+                    : "§b[AetherVisuals] §cОшибка сохранения конфига.");
+        } else if (sub.equals("load") && args.length >= 3) {
+            boolean ok = configManager.loadConfig(args[2]);
+            sendChat(ok ? "§b[AetherVisuals] §aКонфиг '" + args[2] + "' загружен!"
+                    : "§b[AetherVisuals] §cКонфиг '" + args[2] + "' не найден.");
+        } else {
+            sendChat("§b[AetherVisuals] §fИспользуйте: §7.config save <имя> | load <имя> | list");
+        }
+    }
+
+    private void sendChat(String text) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.player != null) {
+            client.player.sendMessage(Text.literal(text), false);
+        }
+    }
+
     public static AetherVisuals getInstance() {
         return instance;
     }
 
     public ModuleManager getModuleManager() {
         return moduleManager;
+    }
+
+    public ConfigManager getConfigManager() {
+        return configManager;
     }
 }
