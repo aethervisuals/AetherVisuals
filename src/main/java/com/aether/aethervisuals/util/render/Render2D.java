@@ -42,12 +42,10 @@ public class Render2D {
             return;
         }
 
-        // Центральная и боковые части (гарантированно непрозрачная чёрная заливка в 1.21.4)
         context.fill(ix + r, iy, ix + iw - r, iy + ih, color);
         context.fill(ix, iy + r, ix + r, iy + ih - r, color);
         context.fill(ix + iw - r, iy + r, ix + iw, iy + ih - r, color);
 
-        // Плавное скругление 4 углов
         for (int dy = 0; dy < r; dy++) {
             double distY = r - dy - 0.5;
             int dx = (int) Math.round(r - Math.sqrt(Math.max(0, r * r - distY * distY)));
@@ -77,19 +75,14 @@ public class Render2D {
         BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.DEBUG_LINE_STRIP, VertexFormats.POSITION_COLOR);
 
         int segments = 12;
-        float[][] corners = {
-                {x + width - radius, y + radius},
-                {x + width - radius, y + height - radius},
-                {x + radius,         y + height - radius},
-                {x + radius,         y + radius}
-        };
-
         for (int c = 0; c < 4; c++) {
+            float cx = (c == 0 || c == 1) ? (x + width - radius) : (x + radius);
+            float cy = (c == 1 || c == 2) ? (y + height - radius) : (y + radius);
             float startAngle = (float) (c * Math.PI / 2.0);
             for (int i = 0; i <= segments; i++) {
                 float angle = startAngle + (float) (i * Math.PI / (2.0 * segments));
-                float vx = corners[c] + (float) Math.sin(angle) * radius;
-                float vy = corners[c] - (float) Math.cos(angle) * radius;
+                float vx = cx + (float) Math.sin(angle) * radius;
+                float vy = cy - (float) Math.cos(angle) * radius;
 
                 float t = ((vx - x) / width + (vy - y) / height) / 2.0f;
                 t = Math.max(0.0f, Math.min(1.0f, t));
@@ -102,7 +95,7 @@ public class Render2D {
                 buffer.vertex(matrix, vx, vy, 0).color(r, g, b, a);
             }
         }
-        buffer.vertex(matrix, corners, corners - radius, 0).color(r1, g1, b1, a1);
+        buffer.vertex(matrix, x + width - radius, y, 0).color(r1, g1, b1, a1);
 
         BuiltBuffer built = buffer.endNullable();
         if (built != null) {
