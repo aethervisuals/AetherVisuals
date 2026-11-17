@@ -15,65 +15,47 @@ public class Render2D {
 
     public static final int ACCENT_PURPLE = 0xFF8A2BE2;
     public static final int ACCENT_CYAN   = 0xFF00F0FF;
-    public static final int GLASS_BG      = 0xB80E0E16;
-    public static final int MATTE_BG      = 0xEB0D0E15;
-    public static final int MATTE_CARD    = 0xF0141622;
+    public static final int GLASS_BG      = 0xFF090A0F;
+    public static final int MATTE_BG      = 0xFF090A0F;
+    public static final int MATTE_CARD    = 0xFF12141E;
 
     public static void drawGlassPanel(DrawContext context, float x, float y, float width, float height, float radius) {
         drawMattePanel(context, x, y, width, height, radius);
     }
 
     public static void drawMattePanel(DrawContext context, float x, float y, float width, float height, float radius) {
-        drawRoundedRect(context, x + 2, y + 3, width, height, radius, 0x66000000);
+        drawRoundedRect(context, x + 2, y + 3, width, height, radius, 0xCC000000);
         drawRoundedRect(context, x, y, width, height, radius, MATTE_BG);
         drawRoundedOutline(context, x, y, width, height, radius, 1.2f, ACCENT_PURPLE, ACCENT_CYAN);
     }
 
     public static void drawRoundedRect(DrawContext context, float x, float y, float width, float height, float radius, int color) {
         if (width <= 0 || height <= 0) return;
-        radius = Math.min(radius, Math.min(width, height) / 2.0f);
+        int ix = Math.round(x);
+        int iy = Math.round(y);
+        int iw = Math.round(width);
+        int ih = Math.round(height);
+        int r = Math.min(Math.round(radius), Math.min(iw, ih) / 2);
 
-        Matrix4f matrix = context.getMatrices().peek().getPositionMatrix();
-        float a = ((color >> 24) & 0xFF) / 255.0f;
-        float r = ((color >> 16) & 0xFF) / 255.0f;
-        float g = ((color >> 8) & 0xFF) / 255.0f;
-        float b = (color & 0xFF) / 255.0f;
-
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
-
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.begin(VertexFormat.DrawMode.TRIANGLE_FAN, VertexFormats.POSITION_COLOR);
-
-        float cx = x + width / 2.0f;
-        float cy = y + height / 2.0f;
-        buffer.vertex(matrix, cx, cy, 0).color(r, g, b, a);
-
-        int segments = 12;
-        float[][] corners = {
-                {x + width - radius, y + radius},
-                {x + width - radius, y + height - radius},
-                {x + radius,         y + height - radius},
-                {x + radius,         y + radius}
-        };
-
-        for (int c = 0; c < 4; c++) {
-            float startAngle = (float) (c * Math.PI / 2.0);
-            for (int i = 0; i <= segments; i++) {
-                float angle = startAngle + (float) (i * Math.PI / (2.0 * segments));
-                float vx = corners[c][0] + (float) Math.sin(angle) * radius;
-                float vy = corners[c][1] - (float) Math.cos(angle) * radius;
-                buffer.vertex(matrix, vx, vy, 0).color(r, g, b, a);
-            }
+        if (r <= 1) {
+            context.fill(ix, iy, ix + iw, iy + ih, color);
+            return;
         }
-        buffer.vertex(matrix, corners[0][0], corners[0][1] - radius, 0).color(r, g, b, a);
 
-        BuiltBuffer built = buffer.endNullable();
-        if (built != null) {
-            BufferRenderer.drawWithGlobalProgram(built);
+        // Центральная и боковые части (гарантированно непрозрачная чёрная заливка в 1.21.4)
+        context.fill(ix + r, iy, ix + iw - r, iy + ih, color);
+        context.fill(ix, iy + r, ix + r, iy + ih - r, color);
+        context.fill(ix + iw - r, iy + r, ix + iw, iy + ih - r, color);
+
+        // Плавное скругление 4 углов
+        for (int dy = 0; dy < r; dy++) {
+            double distY = r - dy - 0.5;
+            int dx = (int) Math.round(r - Math.sqrt(Math.max(0, r * r - distY * distY)));
+            context.fill(ix + dx, iy + dy, ix + r, iy + dy + 1, color);
+            context.fill(ix + iw - r, iy + dy, ix + iw - dx, iy + dy + 1, color);
+            context.fill(ix + dx, iy + ih - dy - 1, ix + r, iy + ih - dy, color);
+            context.fill(ix + iw - r, iy + ih - dy - 1, ix + iw - dx, iy + ih - dy, color);
         }
-        RenderSystem.disableBlend();
     }
 
     public static void drawRoundedOutline(DrawContext context, float x, float y, float width, float height, float radius, float lineWidth, int color1, int color2) {
@@ -87,6 +69,7 @@ public class Render2D {
 
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
         RenderSystem.lineWidth(lineWidth);
 
@@ -105,8 +88,8 @@ public class Render2D {
             float startAngle = (float) (c * Math.PI / 2.0);
             for (int i = 0; i <= segments; i++) {
                 float angle = startAngle + (float) (i * Math.PI / (2.0 * segments));
-                float vx = corners[c][0] + (float) Math.sin(angle) * radius;
-                float vy = corners[c][1] - (float) Math.cos(angle) * radius;
+                float vx = corners[c] + (float) Math.sin(angle) * radius;
+                float vy = corners[c] - (float) Math.cos(angle) * radius;
 
                 float t = ((vx - x) / width + (vy - y) / height) / 2.0f;
                 t = Math.max(0.0f, Math.min(1.0f, t));
@@ -119,7 +102,7 @@ public class Render2D {
                 buffer.vertex(matrix, vx, vy, 0).color(r, g, b, a);
             }
         }
-        buffer.vertex(matrix, corners[0][0], corners[0][1] - radius, 0).color(r1, g1, b1, a1);
+        buffer.vertex(matrix, corners, corners - radius, 0).color(r1, g1, b1, a1);
 
         BuiltBuffer built = buffer.endNullable();
         if (built != null) {
