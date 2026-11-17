@@ -8,11 +8,16 @@ import com.aether.aethervisuals.module.impl.hud.KeystrokesModule;
 import com.aether.aethervisuals.module.impl.hud.TargetHudModule;
 import com.aether.aethervisuals.module.impl.hud.WatermarkModule;
 import com.aether.aethervisuals.module.impl.render.AnimationModule;
+import com.aether.aethervisuals.module.impl.render.BlockOverlayModule;
 import com.aether.aethervisuals.module.impl.render.FullBrightModule;
+import com.aether.aethervisuals.module.impl.render.NoRenderModule;
+import com.aether.aethervisuals.module.impl.visuals.ArrowsModule;
 import com.aether.aethervisuals.module.impl.visuals.HitParticlesModule;
 import com.aether.aethervisuals.module.impl.visuals.JumpCircleModule;
+import com.aether.aethervisuals.module.impl.visuals.TargetESPModule;
 import com.aether.aethervisuals.module.impl.visuals.WorldParticlesModule;
 import com.aether.aethervisuals.module.impl.world.ClickPearlModule;
+import com.aether.aethervisuals.module.impl.world.CustomSkyModule;
 import com.aether.aethervisuals.ui.ClickGuiScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -49,18 +54,28 @@ public class AetherVisuals implements ClientModInitializer {
         LOGGER.info("[AetherVisuals] Запуск клиента...");
 
         this.moduleManager = new ModuleManager();
+        // HUD
         this.moduleManager.register(new WatermarkModule());
         this.moduleManager.register(new CoordsModule());
         this.moduleManager.register(new TargetHudModule());
         this.moduleManager.register(new KeystrokesModule());
 
+        // Render
         this.moduleManager.register(new FullBrightModule());
         this.moduleManager.register(new AnimationModule());
-        this.moduleManager.register(new ClickPearlModule());
+        this.moduleManager.register(new NoRenderModule());
+        this.moduleManager.register(new BlockOverlayModule());
 
+        // Visuals
+        this.moduleManager.register(new TargetESPModule());
+        this.moduleManager.register(new ArrowsModule());
         this.moduleManager.register(new JumpCircleModule());
         this.moduleManager.register(new WorldParticlesModule());
         this.moduleManager.register(new HitParticlesModule());
+
+        // World
+        this.moduleManager.register(new ClickPearlModule());
+        this.moduleManager.register(new CustomSkyModule());
 
         this.configManager = new ConfigManager();
 
