@@ -71,33 +71,33 @@ public class ConfigManager {
                 String[] parts = line.split(":", 4);
                 if (parts.length < 3) continue;
 
-                if (parts.equals("MOD")) {
-                    Module m = AetherVisuals.getInstance().getModuleManager().getModuleByName(parts);
-                    if (m != null) m.setEnabled(Boolean.parseBoolean(parts));
-                } else if (parts.equals("SET") && parts.length == 4) {
-                    Module m = AetherVisuals.getInstance().getModuleManager().getModuleByName(parts);
+                if (parts[0].equals("MOD")) {
+                    Module m = AetherVisuals.getInstance().getModuleManager().getModuleByName(parts[1]);
+                    if (m != null) m.setEnabled(Boolean.parseBoolean(parts[2]));
+                } else if (parts[0].equals("SET") && parts.length == 4) {
+                    Module m = AetherVisuals.getInstance().getModuleManager().getModuleByName(parts[1]);
                     if (m != null) {
                         for (Setting<?> s : m.getSettings()) {
-                            if (s.getName().equalsIgnoreCase(parts)) {
-                                if (s instanceof BooleanSetting bs) bs.setValue(Boolean.parseBoolean(parts));
-                                else if (s instanceof ModeSetting ms) ms.setMode(parts);
-                                else if (s instanceof NumberSetting ns) ns.setValue(Double.parseDouble(parts));
+                            if (s.getName().equalsIgnoreCase(parts[2])) {
+                                if (s instanceof BooleanSetting bs) bs.setValue(Boolean.parseBoolean(parts[3]));
+                                else if (s instanceof ModeSetting ms) ms.setMode(parts[3]);
+                                else if (s instanceof NumberSetting ns) ns.setValue(Double.parseDouble(parts[3]));
                             }
                         }
                     }
-                } else if (parts.equals("HUD") && parts.length == 4) {
-                    float hx = Float.parseFloat(parts);
-                    float hy = Float.parseFloat(parts);
-                    if (parts.equals("Watermark")) {
+                } else if (parts[0].equals("HUD") && parts.length == 4) {
+                    float hx = Float.parseFloat(parts[2]);
+                    float hy = Float.parseFloat(parts[3]);
+                    if (parts[1].equals("Watermark")) {
                         WatermarkModule wm = AetherVisuals.getInstance().getModuleManager().getModule(WatermarkModule.class);
                         if (wm != null) { wm.x = hx; wm.y = hy; }
-                    } else if (parts.equals("TargetHUD")) {
+                    } else if (parts[1].equals("TargetHUD")) {
                         TargetHudModule th = AetherVisuals.getInstance().getModuleManager().getModule(TargetHudModule.class);
                         if (th != null) { th.x = hx; th.y = hy; }
-                    } else if (parts.equals("Keystrokes")) {
+                    } else if (parts[1].equals("Keystrokes")) {
                         KeystrokesModule ks = AetherVisuals.getInstance().getModuleManager().getModule(KeystrokesModule.class);
                         if (ks != null) { ks.x = hx; ks.y = hy; }
-                    } else if (parts.equals("Coords")) {
+                    } else if (parts[1].equals("Coords")) {
                         CoordsModule cm = AetherVisuals.getInstance().getModuleManager().getModule(CoordsModule.class);
                         if (cm != null) { cm.x = hx; cm.y = hy; }
                     }
