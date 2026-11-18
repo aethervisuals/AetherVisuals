@@ -3,7 +3,6 @@ package com.aether.aethervisuals.module.impl.world;
 import com.aether.aethervisuals.module.Category;
 import com.aether.aethervisuals.module.Module;
 import com.aether.aethervisuals.module.settings.ModeSetting;
-import net.minecraft.util.math.Vec3d;
 
 public class CustomSkyModule extends Module {
 
@@ -21,12 +20,12 @@ public class CustomSkyModule extends Module {
         addSettings(preset);
     }
 
-    public Vec3d getSkyColor() {
+    public int getSkyColorInt() {
         return switch (preset.getValue()) {
-            case "Розовый закат" -> new Vec3d(0.75, 0.22, 0.55);
-            case "Космос" -> new Vec3d(0.03, 0.03, 0.09);
-            case "Северное сияние" -> new Vec3d(0.06, 0.55, 0.48);
-            default -> new Vec3d(0.16, 0.05, 0.35); // Киберпанк-ночь
+            case "Розовый закат" -> 0xFFBF388C;
+            case "Космос" -> 0xFF070818;
+            case "Северное сияние" -> 0xFF0F8C7A;
+            default -> 0xFF290D59; // Киберпанк-ночь
         };
     }
 }
