@@ -1,6 +1,8 @@
 package com.aether.aethervisuals.ui;
 
+import com.aether.aethervisuals.AetherVisuals;
 import com.aether.aethervisuals.mixin.MinecraftClientAccessor;
+import com.aether.aethervisuals.module.impl.render.ClientSoundModule;
 import com.aether.aethervisuals.util.animation.Animation;
 import com.aether.aethervisuals.util.animation.Easing;
 import com.aether.aethervisuals.util.render.Render2D;
@@ -33,6 +35,12 @@ public class MainMenuScreen extends Screen {
         openAnim.animateTo(1.0);
         if (this.client != null && this.client.getSession() != null) {
             this.nicknameInput = this.client.getSession().getUsername();
+        }
+        if (AetherVisuals.getInstance() != null && AetherVisuals.getInstance().getModuleManager() != null) {
+            ClientSoundModule sound = AetherVisuals.getInstance().getModuleManager().getModule(ClientSoundModule.class);
+            if (sound != null) {
+                sound.playWelcomeVoice();
+            }
         }
     }
 
