@@ -12,7 +12,8 @@
 		"NoRenderMixin",
 		"FireOverlayMixin",
 		"CustomSkyMixin",
-		"ViewModelMixin"
+		"ViewModelMixin",
+		"PlayerListHudMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
