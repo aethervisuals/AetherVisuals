@@ -38,9 +38,11 @@ public class ClientSoundModule extends Module {
                 if (os.contains("win")) {
                     String psCommand = "Add-Type -AssemblyName System.Speech; " +
                             "$s = New-Object System.Speech.Synthesis.SpeechSynthesizer; " +
-                            "$s.SelectVoiceByHints([System.Speech.Synthesis.VoiceGender]::Female); " +
-                            "$s.Rate = 1; " +
-                            "$s.Speak('Добро пожаловать в Эфир Вижуалс');";
+                            "$v = $s.GetInstalledVoices() | Where-Object { $_.VoiceInfo.Name -match 'Irina|Svetlana|Zira|Elena' -or $_.VoiceInfo.Gender -eq 'Female' } | Select-Object -First 1; " +
+                            "if ($v) { $s.SelectVoice($v.VoiceInfo.Name) }; " +
+                            "$s.Rate = 0; $s.Volume = 95; " +
+                            "$ssml = '<speak version=\"1.0\" xmlns=\"http://w3.org\" xml:lang=\"ru-RU\"><prosody pitch=\"+12%\" rate=\"96%\">Добро пожаловать в Эфир Вижуалс</prosody></speak>'; " +
+                            "$s.SpeakSsml($ssml);";
                     new ProcessBuilder("powershell", "-NoProfile", "-Command", psCommand).start();
                 }
             } catch (Exception ignored) {
