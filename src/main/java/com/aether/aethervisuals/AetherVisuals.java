@@ -10,6 +10,7 @@ import com.aether.aethervisuals.module.impl.hud.TargetHudModule;
 import com.aether.aethervisuals.module.impl.hud.WatermarkModule;
 import com.aether.aethervisuals.module.impl.render.AnimationModule;
 import com.aether.aethervisuals.module.impl.render.BlockOverlayModule;
+import com.aether.aethervisuals.module.impl.render.ClientSoundModule;
 import com.aether.aethervisuals.module.impl.render.FullBrightModule;
 import com.aether.aethervisuals.module.impl.render.NoRenderModule;
 import com.aether.aethervisuals.module.impl.visuals.ArrowsModule;
@@ -21,8 +22,10 @@ import com.aether.aethervisuals.module.impl.visuals.WorldParticlesModule;
 import com.aether.aethervisuals.module.impl.world.AucHelperModule;
 import com.aether.aethervisuals.module.impl.world.ClickPearlModule;
 import com.aether.aethervisuals.module.impl.world.CustomSkyModule;
+import com.aether.aethervisuals.module.impl.world.DiscordRPCModule;
 import com.aether.aethervisuals.module.impl.world.EventsModule;
 import com.aether.aethervisuals.module.impl.world.FTHelperModule;
+import com.aether.aethervisuals.module.impl.world.OptimisationModule;
 import com.aether.aethervisuals.ui.ClickGuiScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -72,6 +75,7 @@ public class AetherVisuals implements ClientModInitializer {
         this.moduleManager.register(new AnimationModule());
         this.moduleManager.register(new NoRenderModule());
         this.moduleManager.register(new BlockOverlayModule());
+        this.moduleManager.register(new ClientSoundModule());
 
         // Visuals
         this.moduleManager.register(new TargetESPModule());
@@ -87,6 +91,8 @@ public class AetherVisuals implements ClientModInitializer {
         this.moduleManager.register(new FTHelperModule());
         this.moduleManager.register(new AucHelperModule());
         this.moduleManager.register(new EventsModule());
+        this.moduleManager.register(new OptimisationModule());
+        this.moduleManager.register(new DiscordRPCModule());
 
         this.configManager = new ConfigManager();
         this.friendManager = new FriendManager();
@@ -209,22 +215,18 @@ public class AetherVisuals implements ClientModInitializer {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player != null) {
             client.player.sendMessage(Text.literal(text), false);
-        }
-    }
-
-    public static AetherVisuals getInstance() {
-        return instance;
-    }
-
-    public ModuleManager getModuleManager() {
-        return moduleManager;
-    }
-
-    public ConfigManager getConfigManager() {
-        return configManager;
-    }
-
-    public FriendManager getFriendManager() {
-        return friendManager;
+}
+}
+public static AetherVisuals getInstance() {
+return instance;
+}
+public ModuleManager getModuleManager() {
+return moduleManager;
+}
+public ConfigManager getConfigManager() {
+return configManager;
+}
+public FriendManager getFriendManager() {
+return friendManager;
 }
 }
