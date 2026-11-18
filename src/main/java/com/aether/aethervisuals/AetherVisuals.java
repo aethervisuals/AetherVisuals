@@ -13,11 +13,14 @@ import com.aether.aethervisuals.module.impl.render.BlockOverlayModule;
 import com.aether.aethervisuals.module.impl.render.ClientSoundModule;
 import com.aether.aethervisuals.module.impl.render.FullBrightModule;
 import com.aether.aethervisuals.module.impl.render.NoRenderModule;
+import com.aether.aethervisuals.module.impl.render.ViewModelModule;
 import com.aether.aethervisuals.module.impl.visuals.ArrowsModule;
+import com.aether.aethervisuals.module.impl.visuals.ChinaHatModule;
 import com.aether.aethervisuals.module.impl.visuals.FriendsModule;
 import com.aether.aethervisuals.module.impl.visuals.HitParticlesModule;
 import com.aether.aethervisuals.module.impl.visuals.JumpCircleModule;
 import com.aether.aethervisuals.module.impl.visuals.TargetESPModule;
+import com.aether.aethervisuals.module.impl.visuals.TrailsModule;
 import com.aether.aethervisuals.module.impl.visuals.WorldParticlesModule;
 import com.aether.aethervisuals.module.impl.world.AucHelperModule;
 import com.aether.aethervisuals.module.impl.world.ClickPearlModule;
@@ -64,28 +67,27 @@ public class AetherVisuals implements ClientModInitializer {
         LOGGER.info("[AetherVisuals] Запуск клиента...");
 
         this.moduleManager = new ModuleManager();
-        // HUD
         this.moduleManager.register(new WatermarkModule());
         this.moduleManager.register(new CoordsModule());
         this.moduleManager.register(new TargetHudModule());
         this.moduleManager.register(new KeystrokesModule());
 
-        // Render
         this.moduleManager.register(new FullBrightModule());
         this.moduleManager.register(new AnimationModule());
         this.moduleManager.register(new NoRenderModule());
         this.moduleManager.register(new BlockOverlayModule());
         this.moduleManager.register(new ClientSoundModule());
+        this.moduleManager.register(new ViewModelModule());
 
-        // Visuals
         this.moduleManager.register(new TargetESPModule());
         this.moduleManager.register(new ArrowsModule());
         this.moduleManager.register(new FriendsModule());
+        this.moduleManager.register(new ChinaHatModule());
+        this.moduleManager.register(new TrailsModule());
         this.moduleManager.register(new JumpCircleModule());
         this.moduleManager.register(new WorldParticlesModule());
         this.moduleManager.register(new HitParticlesModule());
 
-        // World & FunTime
         this.moduleManager.register(new ClickPearlModule());
         this.moduleManager.register(new CustomSkyModule());
         this.moduleManager.register(new FTHelperModule());
@@ -93,8 +95,7 @@ public class AetherVisuals implements ClientModInitializer {
         this.moduleManager.register(new EventsModule());
         this.moduleManager.register(new OptimisationModule());
         this.moduleManager.register(new DiscordRPCModule());
-
-        this.configManager = new ConfigManager();
+                this.configManager = new ConfigManager();
         this.friendManager = new FriendManager();
 
         this.clickGuiKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
@@ -215,18 +216,22 @@ public class AetherVisuals implements ClientModInitializer {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player != null) {
             client.player.sendMessage(Text.literal(text), false);
-}
-}
-public static AetherVisuals getInstance() {
-return instance;
-}
-public ModuleManager getModuleManager() {
-return moduleManager;
-}
-public ConfigManager getConfigManager() {
-return configManager;
-}
-public FriendManager getFriendManager() {
-return friendManager;
-}
+        }
+    }
+
+    public static AetherVisuals getInstance() {
+        return instance;
+    }
+
+    public ModuleManager getModuleManager() {
+        return moduleManager;
+    }
+
+    public ConfigManager getConfigManager() {
+        return configManager;
+    }
+
+    public FriendManager getFriendManager() {
+        return friendManager;
+    }
 }
