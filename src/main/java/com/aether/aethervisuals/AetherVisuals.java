@@ -1,6 +1,7 @@
 package com.aether.aethervisuals;
 
 import com.aether.aethervisuals.config.ConfigManager;
+import com.aether.aethervisuals.config.FriendManager;
 import com.aether.aethervisuals.module.Module;
 import com.aether.aethervisuals.module.ModuleManager;
 import com.aether.aethervisuals.module.impl.hud.CoordsModule;
@@ -12,12 +13,16 @@ import com.aether.aethervisuals.module.impl.render.BlockOverlayModule;
 import com.aether.aethervisuals.module.impl.render.FullBrightModule;
 import com.aether.aethervisuals.module.impl.render.NoRenderModule;
 import com.aether.aethervisuals.module.impl.visuals.ArrowsModule;
+import com.aether.aethervisuals.module.impl.visuals.FriendsModule;
 import com.aether.aethervisuals.module.impl.visuals.HitParticlesModule;
 import com.aether.aethervisuals.module.impl.visuals.JumpCircleModule;
 import com.aether.aethervisuals.module.impl.visuals.TargetESPModule;
 import com.aether.aethervisuals.module.impl.visuals.WorldParticlesModule;
+import com.aether.aethervisuals.module.impl.world.AucHelperModule;
 import com.aether.aethervisuals.module.impl.world.ClickPearlModule;
 import com.aether.aethervisuals.module.impl.world.CustomSkyModule;
+import com.aether.aethervisuals.module.impl.world.EventsModule;
+import com.aether.aethervisuals.module.impl.world.FTHelperModule;
 import com.aether.aethervisuals.ui.ClickGuiScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -35,6 +40,7 @@ import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class AetherVisuals implements ClientModInitializer {
@@ -46,6 +52,7 @@ public class AetherVisuals implements ClientModInitializer {
     private static AetherVisuals instance;
     private ModuleManager moduleManager;
     private ConfigManager configManager;
+    private FriendManager friendManager;
     private KeyBinding clickGuiKey;
 
     @Override
@@ -69,15 +76,20 @@ public class AetherVisuals implements ClientModInitializer {
         // Visuals
         this.moduleManager.register(new TargetESPModule());
         this.moduleManager.register(new ArrowsModule());
+        this.moduleManager.register(new FriendsModule());
         this.moduleManager.register(new JumpCircleModule());
         this.moduleManager.register(new WorldParticlesModule());
         this.moduleManager.register(new HitParticlesModule());
 
-        // World
+        // World & FunTime
         this.moduleManager.register(new ClickPearlModule());
         this.moduleManager.register(new CustomSkyModule());
+        this.moduleManager.register(new FTHelperModule());
+        this.moduleManager.register(new AucHelperModule());
+        this.moduleManager.register(new EventsModule());
 
         this.configManager = new ConfigManager();
+        this.friendManager = new FriendManager();
 
         this.clickGuiKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.aethervisuals.clickgui",
@@ -90,6 +102,10 @@ public class AetherVisuals implements ClientModInitializer {
             String trimmed = message.trim();
             if (trimmed.toLowerCase().startsWith(".config")) {
                 handleConfigCommand(trimmed);
+                return false;
+            }
+            if (trimmed.toLowerCase().startsWith(".friend")) {
+                handleFriendCommand(trimmed);
                 return false;
             }
             return true;
@@ -136,12 +152,12 @@ public class AetherVisuals implements ClientModInitializer {
     }
 
     private void handleConfigCommand(String cmd) {
-        String[] args = cmd.split("\\s+");
-        if (args.length < 2) {
+        List<String> args = Arrays.asList(cmd.split("\\s+"));
+        if (args.size() < 2) {
             sendChat("§b[AetherVisuals] §fИспользуйте: §7.config save <имя> | load <имя> | list");
             return;
         }
-        String sub = args[1].toLowerCase();
+        String sub = args.get(1).toLowerCase();
         if (sub.equals("list")) {
             List<String> list = configManager.getConfigList();
             if (list.isEmpty()) {
@@ -149,16 +165,43 @@ public class AetherVisuals implements ClientModInitializer {
             } else {
                 sendChat("§b[AetherVisuals] §fКонфиги (§b" + list.size() + "§f): §a" + String.join(", ", list));
             }
-        } else if (sub.equals("save") && args.length >= 3) {
-            boolean ok = configManager.saveConfig(args[2]);
-            sendChat(ok ? "§b[AetherVisuals] §aКонфиг '" + args[2] + "' сохранён!"
+        } else if (sub.equals("save") && args.size() >= 3) {
+            boolean ok = configManager.saveConfig(args.get(2));
+            sendChat(ok ? "§b[AetherVisuals] §aКонфиг '" + args.get(2) + "' сохранён!"
                     : "§b[AetherVisuals] §cОшибка сохранения конфига.");
-        } else if (sub.equals("load") && args.length >= 3) {
-            boolean ok = configManager.loadConfig(args[2]);
-            sendChat(ok ? "§b[AetherVisuals] §aКонфиг '" + args[2] + "' загружен!"
-                    : "§b[AetherVisuals] §cКонфиг '" + args[2] + "' не найден.");
+        } else if (sub.equals("load") && args.size() >= 3) {
+            boolean ok = configManager.loadConfig(args.get(2));
+            sendChat(ok ? "§b[AetherVisuals] §aКонфиг '" + args.get(2) + "' загружен!"
+                    : "§b[AetherVisuals] §cКонфиг '" + args.get(2) + "' не найден.");
         } else {
             sendChat("§b[AetherVisuals] §fИспользуйте: §7.config save <имя> | load <имя> | list");
+        }
+    }
+
+    private void handleFriendCommand(String cmd) {
+        List<String> args = Arrays.asList(cmd.split("\\s+"));
+        if (args.size() < 2) {
+            sendChat("§b[AetherVisuals] §fИспользуйте: §7.friend add <ник> | remove <ник> | list");
+            return;
+        }
+        String sub = args.get(1).toLowerCase();
+        if (sub.equals("list")) {
+            List<String> list = friendManager.getFriends();
+            if (list.isEmpty()) {
+                sendChat("§b[AetherVisuals] §7Список друзей пуст.");
+            } else {
+                sendChat("§b[AetherVisuals] §fДрузья (§a" + list.size() + "§f): §a" + String.join(", ", list));
+            }
+        } else if (sub.equals("add") && args.size() >= 3) {
+            boolean ok = friendManager.addFriend(args.get(2));
+            sendChat(ok ? "§b[AetherVisuals] §aИгрок " + args.get(2) + " добавлен в друзья!"
+                    : "§b[AetherVisuals] §eИгрок уже в списке друзей.");
+        } else if (sub.equals("remove") && args.size() >= 3) {
+            boolean ok = friendManager.removeFriend(args.get(2));
+            sendChat(ok ? "§b[AetherVisuals] §cИгрок " + args.get(2) + " удалён из друзей."
+                    : "§b[AetherVisuals] §7Игрок не найден в друзьях.");
+        } else {
+            sendChat("§b[AetherVisuals] §fИспользуйте: §7.friend add <ник> | remove <ник> | list");
         }
     }
 
@@ -180,4 +223,8 @@ public class AetherVisuals implements ClientModInitializer {
     public ConfigManager getConfigManager() {
         return configManager;
     }
+
+    public FriendManager getFriendManager() {
+        return friendManager;
+}
 }
