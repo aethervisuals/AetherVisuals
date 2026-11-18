@@ -25,7 +25,7 @@ public class MainMenuScreen extends Screen {
     private String nicknameInput = "";
 
     public MainMenuScreen() {
-        super(Text.literal("AetherVisuals Main Menu"));
+        super(Text.literal("AETHER // VISUALS"));
     }
 
     @Override
@@ -46,7 +46,7 @@ public class MainMenuScreen extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        context.fillGradient(0, 0, this.width, this.height, 0xFF07080F, 0xFF120B24);
+        context.fillGradient(0, 0, this.width, this.height, 0xFF06070C, 0xFF100A1E);
 
         if (accountModalOpen) {
             float mW = 220.0f;
@@ -54,25 +54,25 @@ public class MainMenuScreen extends Screen {
             float mX = (this.width - mW) / 2.0f;
             float mY = (this.height - mH) / 2.0f;
 
-            Render2D.drawMattePanel(context, mX, mY, mW, mH, 12.0f);
-            context.drawTextWithShadow(this.textRenderer, "Введите новый ник:", (int) (mX + 16), (int) (mY + 14), 0xFFFFFFFF);
+            Render2D.drawMattePanel(context, mX, mY, mW, mH, 10.0f);
+            Render2D.drawCleanText(context, this.textRenderer, "ACCOUNT // НИКНЕЙМ", mX + 16, mY + 14, 0xFFE6E6F2);
 
-            Render2D.drawRoundedRect(context, mX + 16, mY + 32, mW - 32, 22, 6.0f, Render2D.MATTE_CARD);
-            Render2D.drawRoundedOutline(context, mX + 16, mY + 32, mW - 32, 22, 6.0f, 1.0f,
+            Render2D.drawRoundedRect(context, mX + 16, mY + 32, mW - 32, 22, 5.0f, Render2D.MATTE_CARD);
+            Render2D.drawRoundedOutline(context, mX + 16, mY + 32, mW - 32, 22, 5.0f, 1.0f,
                     Render2D.ACCENT_PURPLE, Render2D.ACCENT_CYAN);
-            context.drawTextWithShadow(this.textRenderer, nicknameInput + "_", (int) (mX + 22), (int) (mY + 39), Render2D.ACCENT_CYAN);
+            Render2D.drawCleanText(context, this.textRenderer, nicknameInput + "_", mX + 22, mY + 39, Render2D.ACCENT_CYAN);
 
-            Render2D.drawRoundedRect(context, mX + 16, mY + 68, 88, 22, 6.0f, 0xFF5D21A8);
-            context.drawTextWithShadow(this.textRenderer, "Сохранить", (int) (mX + 34), (int) (mY + 75), 0xFFFFFFFF);
+            Render2D.drawRoundedRect(context, mX + 16, mY + 68, 88, 22, 5.0f, 0xFF5D21A8);
+            Render2D.drawCleanText(context, this.textRenderer, "ПРИМЕНИТЬ", mX + 32, mY + 75, 0xFFFFFFFF);
 
-            Render2D.drawRoundedRect(context, mX + mW - 104, mY + 68, 88, 22, 6.0f, 0xFF252838);
-            context.drawTextWithShadow(this.textRenderer, "Отмена", (int) (mX + mW - 78), (int) (mY + 75), 0xFFCCCCCC);
+            Render2D.drawRoundedRect(context, mX + mW - 104, mY + 68, 88, 22, 5.0f, 0xFF202332);
+            Render2D.drawCleanText(context, this.textRenderer, "ОТМЕНА", mX + mW - 78, mY + 75, 0xFFB0B0C5);
             return;
         }
 
         float anim = openAnim.getFloat();
         float cardW = 240.0f;
-        float cardH = 242.0f;
+        float cardH = 244.0f;
         float cardX = (this.width - cardW) / 2.0f;
         float cardY = (this.height - cardH) / 2.0f;
 
@@ -82,17 +82,17 @@ public class MainMenuScreen extends Screen {
         context.getMatrices().scale(scale, scale, 1.0f);
         context.getMatrices().translate(-(cardX + cardW / 2.0f), -(cardY + cardH / 2.0f), 0);
 
-        Render2D.drawMattePanel(context, cardX, cardY, cardW, cardH, 14.0f);
+        Render2D.drawMattePanel(context, cardX, cardY, cardW, cardH, 12.0f);
 
-        String title = "Welcome to AetherVisuals!";
-        int titleX = (int) (cardX + (cardW - this.textRenderer.getWidth(title)) / 2.0f);
-        context.drawTextWithShadow(this.textRenderer, title, titleX, (int) (cardY + 16), Render2D.ACCENT_CYAN);
+        String title = "AETHER // VISUALS 2.5";
+        float titleX = cardX + (cardW - this.textRenderer.getWidth(title)) / 2.0f;
+        Render2D.drawCleanText(context, this.textRenderer, title, titleX, cardY + 16, Render2D.ACCENT_CYAN);
 
-        String currentNick = "Account: " + (this.client != null ? this.client.getSession().getUsername() : "Player");
-        int nickX = (int) (cardX + (cardW - this.textRenderer.getWidth(currentNick)) / 2.0f);
-        context.drawTextWithShadow(this.textRenderer, currentNick, nickX, (int) (cardY + 30), 0xFFB0B0C8);
+        String currentNick = "SESSION: " + (this.client != null ? this.client.getSession().getUsername() : "Player");
+        float nickX = cardX + (cardW - this.textRenderer.getWidth(currentNick)) / 2.0f;
+        Render2D.drawCleanText(context, this.textRenderer, currentNick, nickX, cardY + 30, 0xFF8E92A8);
 
-        String[] buttons = {"Singleplayer", "Multiplayer", "Account", "Options", "Quit Game"};
+        String[] buttons = {"SINGLEPLAYER", "MULTIPLAYER", "ACCOUNT", "OPTIONS", "QUIT"};
         float btnW = 190.0f;
         float btnH = 25.0f;
         float btnX = cardX + (cardW - btnW) / 2.0f;
@@ -100,27 +100,28 @@ public class MainMenuScreen extends Screen {
 
         for (String label : buttons) {
             boolean hovered = isHovered(mouseX, mouseY, btnX, btnY, btnW, btnH);
-            int bg = hovered ? 0xFF1D2033 : Render2D.MATTE_CARD;
-            Render2D.drawRoundedRect(context, btnX, btnY, btnW, btnH, 7.0f, bg);
+            int bg = hovered ? 0xFF1A1D2E : Render2D.MATTE_CARD;
+            Render2D.drawRoundedRect(context, btnX, btnY, btnW, btnH, 6.0f, bg);
             if (hovered) {
-                Render2D.drawRoundedOutline(context, btnX, btnY, btnW, btnH, 7.0f, 1.2f,
+                Render2D.drawRoundedOutline(context, btnX, btnY, btnW, btnH, 6.0f, 1.2f,
                         Render2D.ACCENT_PURPLE, Render2D.ACCENT_CYAN);
             } else {
-                Render2D.drawRoundedOutline(context, btnX, btnY, btnW, btnH, 7.0f, 1.0f,
-                        0x668A2BE2, 0x6600F0FF);
+                Render2D.drawRoundedOutline(context, btnX, btnY, btnW, btnH, 6.0f, 1.0f,
+                        0x558A2BE2, 0x5500F0FF);
             }
 
-            int textColor = label.equals("Quit Game") && hovered ? 0xFFFF5577 : (hovered ? Render2D.ACCENT_CYAN : 0xFFFFFFFF);
-            int textX = (int) (btnX + (btnW - this.textRenderer.getWidth(label)) / 2.0f);
-            int textY = (int) (btnY + (btnH - this.textRenderer.fontHeight) / 2.0f + 1);
-            context.drawTextWithShadow(this.textRenderer, label, textX, textY, textColor);
+            int textColor = label.equals("QUIT") && hovered ? 0xFFFF5577 : (hovered ? Render2D.ACCENT_CYAN : 0xFFE6E6F2);
+            float textX = btnX + (btnW - this.textRenderer.getWidth(label)) / 2.0f;
+            float textY = btnY + (btnH - this.textRenderer.fontHeight) / 2.0f + 1;
+            Render2D.drawCleanText(context, this.textRenderer, label, textX, textY, textColor);
 
             btnY += 32.0f;
         }
 
         context.getMatrices().pop();
     }
-        @Override
+
+    @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0 && this.client != null) {
             if (accountModalOpen) {
@@ -142,7 +143,7 @@ public class MainMenuScreen extends Screen {
             }
 
             float cardW = 240.0f;
-            float cardH = 242.0f;
+            float cardH = 244.0f;
             float cardX = (this.width - cardW) / 2.0f;
             float cardY = (this.height - cardH) / 2.0f;
             float btnW = 190.0f;
