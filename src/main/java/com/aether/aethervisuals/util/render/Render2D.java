@@ -1,6 +1,7 @@
 package com.aether.aethervisuals.util.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.BufferBuilder;
@@ -18,6 +19,18 @@ public class Render2D {
     public static final int GLASS_BG      = 0xFF090A0F;
     public static final int MATTE_BG      = 0xFF090A0F;
     public static final int MATTE_CARD    = 0xFF12141E;
+
+    public static void drawCleanText(DrawContext context, TextRenderer tr, String text, float x, float y, int color) {
+        context.drawText(tr, text, Math.round(x), Math.round(y), color, false);
+    }
+
+    public static void drawCleanTextScaled(DrawContext context, TextRenderer tr, String text, float x, float y, float scale, int color) {
+        context.getMatrices().push();
+        context.getMatrices().translate(x, y, 0);
+        context.getMatrices().scale(scale, scale, 1.0f);
+        context.drawText(tr, text, 0, 0, color, false);
+        context.getMatrices().pop();
+    }
 
     public static void drawGlassPanel(DrawContext context, float x, float y, float width, float height, float radius) {
         drawMattePanel(context, x, y, width, height, radius);
