@@ -11,7 +11,8 @@
 		"MinecraftClientAccessor",
 		"NoRenderMixin",
 		"FireOverlayMixin",
-		"CustomSkyMixin"
+		"CustomSkyMixin",
+		"ViewModelMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
