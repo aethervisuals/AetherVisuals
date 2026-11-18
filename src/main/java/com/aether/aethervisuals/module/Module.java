@@ -1,5 +1,7 @@
 package com.aether.aethervisuals.module;
 
+import com.aether.aethervisuals.AetherVisuals;
+import com.aether.aethervisuals.module.impl.render.ClientSoundModule;
 import com.aether.aethervisuals.module.settings.Setting;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.util.math.MatrixStack;
@@ -34,6 +36,12 @@ public abstract class Module {
 
     public void toggle() {
         setEnabled(!enabled);
+        if (AetherVisuals.getInstance() != null && AetherVisuals.getInstance().getModuleManager() != null) {
+            ClientSoundModule sound = AetherVisuals.getInstance().getModuleManager().getModule(ClientSoundModule.class);
+            if (sound != null && !(this instanceof ClientSoundModule)) {
+                sound.playToggleSound(this.enabled);
+            }
+        }
     }
 
     public void setEnabled(boolean enabled) {
