@@ -16,20 +16,17 @@ public class Render2D {
 
     public static final int ACCENT_PURPLE = 0xFF8A2BE2;
     public static final int ACCENT_CYAN   = 0xFF00F0FF;
-    public static final int GLASS_BG      = 0xFF090A0F;
-    public static final int MATTE_BG      = 0xFF090A0F;
-    public static final int MATTE_CARD    = 0xFF12141E;
+    public static final int GLASS_BG      = 0xFF07080C;
+    public static final int MATTE_BG      = 0xFF07080C;
+    public static final int MATTE_CARD    = 0xFF10121B;
 
-    public static void drawCleanText(DrawContext context, TextRenderer tr, String text, float x, float y, int color) {
+    public static void drawStrictText(DrawContext context, TextRenderer tr, String text, float x, float y, int color) {
         context.drawText(tr, text, Math.round(x), Math.round(y), color, false);
     }
 
-    public static void drawCleanTextScaled(DrawContext context, TextRenderer tr, String text, float x, float y, float scale, int color) {
-        context.getMatrices().push();
-        context.getMatrices().translate(x, y, 0);
-        context.getMatrices().scale(scale, scale, 1.0f);
-        context.drawText(tr, text, 0, 0, color, false);
-        context.getMatrices().pop();
+    public static void drawStrictCenteredText(DrawContext context, TextRenderer tr, String text, float centerX, float y, int color) {
+        int w = tr.getWidth(text);
+        context.drawText(tr, text, Math.round(centerX - w / 2.0f), Math.round(y), color, false);
     }
 
     public static void drawGlassPanel(DrawContext context, float x, float y, float width, float height, float radius) {
@@ -39,7 +36,7 @@ public class Render2D {
     public static void drawMattePanel(DrawContext context, float x, float y, float width, float height, float radius) {
         drawRoundedRect(context, x + 2, y + 3, width, height, radius, 0xCC000000);
         drawRoundedRect(context, x, y, width, height, radius, MATTE_BG);
-        drawRoundedOutline(context, x, y, width, height, radius, 1.2f, ACCENT_PURPLE, ACCENT_CYAN);
+        drawRoundedOutline(context, x, y, width, height, radius, 1.1f, ACCENT_PURPLE, ACCENT_CYAN);
     }
 
     public static void drawRoundedRect(DrawContext context, float x, float y, float width, float height, float radius, int color) {
