@@ -3,8 +3,10 @@ package com.aether.aethervisuals.ui;
 import com.aether.aethervisuals.AetherVisuals;
 import com.aether.aethervisuals.module.Category;
 import com.aether.aethervisuals.module.Module;
+import com.aether.aethervisuals.module.impl.hud.ArmorHudModule;
 import com.aether.aethervisuals.module.impl.hud.CoordsModule;
 import com.aether.aethervisuals.module.impl.hud.KeystrokesModule;
+import com.aether.aethervisuals.module.impl.hud.PotionHudModule;
 import com.aether.aethervisuals.module.impl.hud.TargetHudModule;
 import com.aether.aethervisuals.module.impl.hud.WatermarkModule;
 import com.aether.aethervisuals.module.impl.render.AnimationModule;
@@ -190,6 +192,10 @@ public class ClickGuiScreen extends Screen {
         if (th != null && th.isEnabled()) drawDragBox(context, th.x, th.y, th.width, th.height, mouseX, mouseY, draggingModule == th);
         KeystrokesModule ks = AetherVisuals.getInstance().getModuleManager().getModule(KeystrokesModule.class);
         if (ks != null && ks.isEnabled()) drawDragBox(context, ks.x, ks.y, ks.width, ks.height, mouseX, mouseY, draggingModule == ks);
+        PotionHudModule ph = AetherVisuals.getInstance().getModuleManager().getModule(PotionHudModule.class);
+        if (ph != null && ph.isEnabled()) drawDragBox(context, ph.x, ph.y, ph.width, ph.height, mouseX, mouseY, draggingModule == ph);
+        ArmorHudModule ah = AetherVisuals.getInstance().getModuleManager().getModule(ArmorHudModule.class);
+        if (ah != null && ah.isEnabled()) drawDragBox(context, ah.x, ah.y, ah.width, ah.height, mouseX, mouseY, draggingModule == ah);
         FTHelperModule ft = AetherVisuals.getInstance().getModuleManager().getModule(FTHelperModule.class);
         if (ft != null && ft.isEnabled()) drawDragBox(context, ft.x, ft.y, ft.width, ft.height, mouseX, mouseY, draggingModule == ft);
         EventsModule ev = AetherVisuals.getInstance().getModuleManager().getModule(EventsModule.class);
@@ -230,6 +236,14 @@ public class ClickGuiScreen extends Screen {
             KeystrokesModule ks = AetherVisuals.getInstance().getModuleManager().getModule(KeystrokesModule.class);
             if (ks != null && ks.isEnabled() && isHovered(mouseX, mouseY, ks.x - 4, ks.y - 4, ks.width + 8, ks.height + 8)) {
                 draggingModule = ks; dragOffsetX = (float) mouseX - ks.x; dragOffsetY = (float) mouseY - ks.y; return true;
+            }
+            PotionHudModule ph = AetherVisuals.getInstance().getModuleManager().getModule(PotionHudModule.class);
+            if (ph != null && ph.isEnabled() && isHovered(mouseX, mouseY, ph.x - 4, ph.y - 4, ph.width + 8, ph.height + 8)) {
+                draggingModule = ph; dragOffsetX = (float) mouseX - ph.x; dragOffsetY = (float) mouseY - ph.y; return true;
+            }
+            ArmorHudModule ah = AetherVisuals.getInstance().getModuleManager().getModule(ArmorHudModule.class);
+            if (ah != null && ah.isEnabled() && isHovered(mouseX, mouseY, ah.x - 4, ah.y - 4, ah.width + 8, ah.height + 8)) {
+                draggingModule = ah; dragOffsetX = (float) mouseX - ah.x; dragOffsetY = (float) mouseY - ah.y; return true;
             }
             FTHelperModule ft = AetherVisuals.getInstance().getModuleManager().getModule(FTHelperModule.class);
             if (ft != null && ft.isEnabled() && isHovered(mouseX, mouseY, ft.x - 4, ft.y - 4, ft.width + 8, ft.height + 8)) {
@@ -304,6 +318,8 @@ public class ClickGuiScreen extends Screen {
             if (draggingModule instanceof CoordsModule cm) { cm.x = nx; cm.y = ny; return true; }
             if (draggingModule instanceof TargetHudModule th) { th.x = nx; th.y = ny; return true; }
             if (draggingModule instanceof KeystrokesModule ks) { ks.x = nx; ks.y = ny; return true; }
+            if (draggingModule instanceof PotionHudModule ph) { ph.x = nx; ph.y = ny; return true; }
+            if (draggingModule instanceof ArmorHudModule ah) { ah.x = nx; ah.y = ny; return true; }
             if (draggingModule instanceof FTHelperModule ft) { ft.x = nx; ft.y = ny; return true; }
             if (draggingModule instanceof EventsModule ev) { ev.x = nx; ev.y = ny; return true; }
         }
@@ -348,4 +364,4 @@ public class ClickGuiScreen extends Screen {
     public boolean shouldPause() {
         return false;
     }
-            }
+                            }
