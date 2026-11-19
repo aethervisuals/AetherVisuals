@@ -13,7 +13,9 @@
 		"FireOverlayMixin",
 		"CustomSkyMixin",
 		"ViewModelMixin",
-		"PlayerListHudMixin"
+		"PlayerListHudMixin",
+		"GameRendererMixin",
+		"ItemEntityRendererMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
